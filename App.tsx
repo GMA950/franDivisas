@@ -24,6 +24,7 @@ function App(){
     setInputValue('');
   };
   
+  
   //const isDarkMode = useColorScheme() === 'dark';
   //const dynamicStyle = isDarkMode ? whiteStyles : darkStyles;
   //console.log('DARKMODE?',isDarkMode);
@@ -40,7 +41,7 @@ function App(){
           <Text style={styles.text}>Indicadores Chile xD</Text>
         </Box>
         {/*<Text>Hola Divisassss</Text>*/}
-        <Selector value={inputValue}/>
+        <Selector value={inputValue} onClear={handleClear}/>
         <Keyboard onKeyPress={handleKeyPress} onClear={handleClear}/>
       </Box>
       {/*</View>*/}
