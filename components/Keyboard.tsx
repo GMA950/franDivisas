@@ -1,8 +1,13 @@
-import { Text, StyleSheet, View } from 'react-native';
 import React from 'react';
+import { useState } from 'react';
 import { Button, Box, HStack, AspectRatio } from "native-base";
 
-const Keyboard = () => {
+type KeyboardProps = {
+  onKeyPress: (value: string) => void;
+  onClear: (value: string) => void;
+};
+
+const Keyboard: React.FC<KeyboardProps>  = ({ onKeyPress, onClear}) => {
 
   const normalButtonStyles = {
     flex: 1,
@@ -30,32 +35,31 @@ const Keyboard = () => {
     size: "sm"
   };
 
-
   return (
     <Box p={4}>
       {/*<Text>FlatCards</Text>*/}
       <HStack space={3} justifyContent="center" mt={3}>
-        <Button {...normalButtonStyles} onPress={() => console.log("hello world")}>7</Button>
-        <Button {...normalButtonStyles} onPress={() => console.log("hello world")}>8</Button>
-        <Button {...normalButtonStyles} onPress={() => console.log("hello world")}>9</Button>
-        <Button {...operatorButtonStyles} onPress={() => console.log("hello world")}>CE</Button>
+        <Button {...normalButtonStyles} onPress={() => onKeyPress('7')}>7</Button>
+        <Button {...normalButtonStyles} onPress={() => onKeyPress('8')}>8</Button>
+        <Button {...normalButtonStyles} onPress={() => onKeyPress('9')}>9</Button>
+        <Button {...operatorButtonStyles} onPress={() => onClear('')}>CE</Button>
       </HStack>
       <HStack space={3} justifyContent="center" mt={5}>
-        <Button {...normalButtonStyles} onPress={() => console.log("hello world")}>4</Button>
-        <Button {...normalButtonStyles} onPress={() => console.log("hello world")}>5</Button>
-        <Button {...normalButtonStyles} onPress={() => console.log("hello world")}>6</Button>
-        <Button {...operatorButtonStyles} onPress={() => console.log("hello world")}>-</Button>
+        <Button {...normalButtonStyles} onPress={() => onKeyPress('4')}>4</Button>
+        <Button {...normalButtonStyles} onPress={() => onKeyPress('5')}>5</Button>
+        <Button {...normalButtonStyles} onPress={() => onKeyPress('6')}>6</Button>
+        <Button {...operatorButtonStyles} onPress={() => onKeyPress('')}>-</Button>
       </HStack>
       <HStack space={3} justifyContent="center" mt={5}>
-        <Button {...normalButtonStyles} onPress={() => console.log("hello world")}>1</Button>
-        <Button {...normalButtonStyles} onPress={() => console.log("hello world")}>2</Button>
-        <Button {...normalButtonStyles} onPress={() => console.log("hello world")}>3</Button>
-        <Button {...operatorButtonStyles} onPress={() => console.log("hello world")}>+</Button>
+        <Button {...normalButtonStyles} onPress={() => onKeyPress('1')}>1</Button>
+        <Button {...normalButtonStyles} onPress={() => onKeyPress('2')}>2</Button>
+        <Button {...normalButtonStyles} onPress={() => onKeyPress('3')}>3</Button>
+        <Button {...operatorButtonStyles} onPress={() => onKeyPress('')}>+</Button>
       </HStack>
       <HStack space={3} justifyContent="center" mt={5}>
-        <Button {...doubleButtonStyles} onPress={() => console.log("hello world")}>0</Button>
-        <Button {...normalButtonStyles} onPress={() => console.log("hello world")}>.</Button>
-        <Button {...operatorButtonStyles} onPress={() => console.log("hello world")}>=</Button>
+        <Button {...doubleButtonStyles} onPress={() => onKeyPress('0')}>0</Button>
+        <Button {...normalButtonStyles} onPress={() => onKeyPress('.')}>.</Button>
+        <Button {...operatorButtonStyles} onPress={() => console.log("Button pressed")}>=</Button>
       </HStack>
     </Box>
   );

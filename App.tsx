@@ -13,9 +13,17 @@ if (__DEV__) {
 
 
 function App(){
-  useEffect(() => {
-    //LogBox.ignoreLogs(['In React 18, SSRProvider is not necessary and is a noop. You can remove it from your app.']);
-  }, []);
+
+  const [inputValue, setInputValue] = useState('');
+
+  const handleKeyPress = (value: string) => {
+    setInputValue((prev) => prev + value);
+  };
+
+  const handleClear = () => {
+    setInputValue('');
+  };
+  
   //const isDarkMode = useColorScheme() === 'dark';
   //const dynamicStyle = isDarkMode ? whiteStyles : darkStyles;
   //console.log('DARKMODE?',isDarkMode);
@@ -29,11 +37,11 @@ function App(){
           shadow={2}
           flex = {1}>
         <Box alignSelf = "center" marginTop={9}>
-          <Text style={styles.text}>Conversor Divisas</Text>
+          <Text style={styles.text}>Indicadores Chile xD</Text>
         </Box>
         {/*<Text>Hola Divisassss</Text>*/}
-        <Selector/>
-        <Keyboard/>
+        <Selector value={inputValue}/>
+        <Keyboard onKeyPress={handleKeyPress} onClear={handleClear}/>
       </Box>
       {/*</View>*/}
     </NativeBaseProvider>
