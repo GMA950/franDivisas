@@ -6,6 +6,7 @@ import { Button, Box, HStack, Select, CheckIcon, Divider, Input } from "native-b
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import '.././fontAwesomeLib';
 import Config from 'react-native-config';
+import axios from 'axios';
 
 type SelectorProps = {
   value: string;
@@ -25,16 +26,66 @@ export default function Selector({ value, onClear }: SelectorProps) {
     //size: "sm"
   };
 
-  const conversionRate = 0.5; 
+  //const conversionRate = 0.5; 
 
   const [coin, setSelectedCoin] = React.useState('emp');
   const [convertedCoin, setConvertedCoin] = React.useState('emp');
   const [convertedValue, setConvertedValue] = useState('');
+  const [conversionRate, setConversionRate] = useState<number | null>(null);
+  const [conversionRates, setConversionRates] = useState<any>({});
+
+  const apiUrl = Config.API_URL;
+
+  const fetchConversionRate = async () => {
+
+    if (!apiUrl) {
+      console.error('La URL de la API no está definida.'); //wena chatgpt
+      return;
+    }
+
+    try {
+      const response = await axios.get(apiUrl);  // Hacemos una solicitud GET a la API
+      console.log(response.data);
+      //setConversionRate(response.data.rate);  // Asumimos que la tasa viene en "rate"
+      setConversionRates({
+        clp: 1,  // Asumiendo que CLP es el valor del dólar en pesos chilenos
+        uf: response.data.uf.valor,
+        usd: response.data.dolar.valor,
+        eur: response.data.euro.valor,
+        utm: response.data.utm.valor,
+        btc: response.data.bitcoin.valor * response.data.dolar.valor,
+      });
+    } catch (error) {
+      console.error('Error al obtener la tasa de conversión:', error);
+    } finally {
+      //setLoading(false);  // Termina la carga
+    }
+  };
 
   useEffect(() => {
-    const newValue = (parseFloat(value) || 0) * conversionRate;
-    setConvertedValue(newValue.toFixed(2)); // Actualiza el valor convertido
-  }, [value]);
+    fetchConversionRate();
+  }, []);
+
+  useEffect(() => {
+    if (coin !== 'emp' && convertedCoin !== 'emp' && conversionRates[coin] && conversionRates[convertedCoin]) {
+      const rate = conversionRates[coin] / conversionRates[convertedCoin];  // Tasa de conversión entre las dos monedas
+      setConversionRate(rate);
+    }
+  }, [coin, convertedCoin, conversionRates]);
+
+  useEffect(() => {
+    if (conversionRate !== null){
+      const newValue = (parseFloat(value) || 0) * conversionRate;
+      setConvertedValue(newValue.toFixed(2));
+    }
+     // Actualiza el valor convertido
+  }, [value, conversionRate]);
+
+  const handleSwapCoins = () => {
+    const tempCoin = coin;
+    setSelectedCoin(convertedCoin);      // Cambiar moneda base a moneda objetivo
+    setConvertedCoin(tempCoin);          // Cambiar moneda objetivo a moneda base
+  };
 
   //console.log('API URL: ', Config.IMAGE_PATH_CLP);
   //console.log('Config', Config);
@@ -72,6 +123,7 @@ export default function Selector({ value, onClear }: SelectorProps) {
                 <Box>
                 <RNPickerSelect
                   onValueChange={(value) => {setSelectedCoin(value); if(value === 'emp') onClear('')}} //hooks hooks y hooks
+                  value={coin}
                   items={[
                     { label: 'CLP', value: 'clp' },
                     { label: 'UF', value: 'uf' },
@@ -98,7 +150,7 @@ export default function Selector({ value, onClear }: SelectorProps) {
         <Box flex={1}>
           <HStack alignItems="center" space={0} justifyContent="center">
             <Divider flex={1} bg="#B8B7B7" thickness="1" />
-            <Button {...interButtonStyles} onPress={() => {console.log("Button pressed");}}>
+            <Button {...interButtonStyles} onPress={handleSwapCoins}>
               <FontAwesomeIcon transform={{ rotate: 90 }} color="white" icon="arrow-right-arrow-left" size={16} />
             </Button>
             <Divider flex={1} bg="#B8B7B7" thickness="1" />
@@ -118,6 +170,7 @@ export default function Selector({ value, onClear }: SelectorProps) {
                 <Box>
                 <RNPickerSelect
                   onValueChange={(value) => {setConvertedCoin(value); if(value === 'emp') onClear('')}}
+                  value={convertedCoin}
                   items={[
                     { label: 'CLP', value: 'clp' },
                     { label: 'UF', value: 'uf' },
