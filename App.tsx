@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from 'react';
-import {Text, SafeAreaView, StyleSheet} from 'react-native';
+import {Text, StyleSheet, Dimensions} from 'react-native';
 import { NativeBaseProvider } from 'native-base';
 import { Box } from "native-base";
 import Keyboard from "./components/Keyboard";
@@ -13,8 +13,11 @@ if (__DEV__) {
   require("./ReactotronConfig");
 }
 
+//const { width } = Dimensions.get('window');
 
 function App(){
+
+  const { height, width } = Dimensions.get('window');
 
   const [inputValue, setInputValue] = useState('');
 
@@ -38,6 +41,9 @@ function App(){
     setInputValue('');
   };
   
+  //console.log(height)
+
+  const space = height > 800 ? height*0.03 : width*0.001;
   
   return(
     //<SafeAreaView style={styles.container}>
@@ -48,11 +54,15 @@ function App(){
             p="2" bg="blue.800"
             shadow={2}
             flex = {1}>
-          <Box alignSelf = "center" marginTop={9}>
-            <Text style={styles.text}>Indicadores Chile xD</Text>
+          <Box alignSelf = "center" marginTop={space}>
+            <Text style={styles.text}>Indicadores Chile</Text>
           </Box>
-          <Selector value={inputValue} onClear={handleClear}/>
-          <Keyboard onKeyPress={handleKeyPress} onClear={handleClear}/>
+          <Box height='40%'>
+            <Selector value={inputValue} onClear={handleClear}/>
+          </Box>
+          <Box>
+            <Keyboard onKeyPress={handleKeyPress} onClear={handleClear}/>
+          </Box>
         </Box>
       </NativeBaseProvider>
     </Provider>

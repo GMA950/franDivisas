@@ -2,10 +2,10 @@ import React from 'react'
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState, AppDispatch} from '../store/store'; 
-import { fetchConversionRates } from '../store/slices/conversionSlice';
-import { Text, StyleSheet, Image } from 'react-native'
+import { fetchConversionRates, setCoin, setConvertedCoin } from '../store/slices/conversionSlice';
+import { Text, StyleSheet, Image, Dimensions } from 'react-native'
 import RNPickerSelect from 'react-native-picker-select';
-import { Button, Box, HStack, Select, CheckIcon, Divider, Input } from "native-base";
+import { Button, Box, HStack, Divider, Input } from "native-base";
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import '.././fontAwesomeLib';
 
@@ -13,6 +13,8 @@ type SelectorProps = {
   value: string;
   onClear: (value: string) => void;
 };
+
+const { height, width } = Dimensions.get('window');
 
 export default function Selector({ value, onClear }: SelectorProps) {
 
@@ -26,10 +28,10 @@ export default function Selector({ value, onClear }: SelectorProps) {
     borderRadius: "full",
   };
 
-  const { conversionRates, status } = useSelector((state: RootState) => state.conversion);
+  const { conversionRates, status, coin, convertedCoin } = useSelector((state: RootState) => state.conversion);
   //console.log('test', conversionRates);
-  const [coin, setSelectedCoin] = React.useState('emp');
-  const [convertedCoin, setConvertedCoin] = React.useState('emp');
+  //const [coin, setSelectedCoin] = React.useState('emp');
+  //const [convertedCoin, setConvertedCoin] = React.useState('emp');
   const [convertedValue, setConvertedValue] = useState('');
   const [conversionRate, setConversionRate] = useState<number | null>(null);
 
@@ -43,6 +45,9 @@ export default function Selector({ value, onClear }: SelectorProps) {
     if (coin !== 'emp' && convertedCoin !== 'emp' && conversionRates[coin] && conversionRates[convertedCoin]) {
       const rate = conversionRates[coin] / conversionRates[convertedCoin];  // Tasa de conversión entre las dos monedas
       setConversionRate(rate);
+      //console.log("coin: " + coin + " convertedCoin " + convertedCoin);
+      //console.log(conversionRates[coin] + " a " + conversionRates[convertedCoin]);
+      //console.log(rate);
     }
   }, [coin, convertedCoin, conversionRates]);
 
@@ -56,9 +61,20 @@ export default function Selector({ value, onClear }: SelectorProps) {
 
   const handleSwapCoins = () => {
     const tempCoin = coin;
-    setSelectedCoin(convertedCoin);      // Cambiar moneda base a moneda objetivo
-    setConvertedCoin(tempCoin);          // Cambiar moneda objetivo a moneda base
+    //setSelectedCoin(convertedCoin);      // Cambiar moneda base a moneda objetivo
+    //setConvertedCoin(tempCoin);          // Cambiar moneda objetivo a moneda base
+    dispatch(setCoin(convertedCoin));
+    dispatch(setConvertedCoin(tempCoin));
   };
+
+  const handleCoinChange = (value: string) => {
+    dispatch(setCoin(value));
+  };
+
+  const handleConvertedCoinChange = (value: string) => {
+    dispatch(setConvertedCoin(value));
+  };
+
 
   const flags: Record <string, number> = {
     clp: require('.././src/chile.png'),
@@ -70,8 +86,10 @@ export default function Selector({ value, onClear }: SelectorProps) {
     emp: require('.././src/empty-set.png')
   };
 
+  const space = height > 800 ? height*0.04 : width*0.001;
+
   return (
-    <Box flex={1} marginTop={10} p={2}>
+    <Box flex={1} marginTop={space} p={2}>
       <Box
           w="100%"
           p="5" bg="white"
@@ -86,13 +104,16 @@ export default function Selector({ value, onClear }: SelectorProps) {
           <HStack flex={1} justifyContent="space-between" alignItems="center">
             <Box width="50%">
               <HStack flex={1} justifyContent="center" alignItems="center">
-                <Image
-                  source={ flags[coin] } //enums no funcionan para require
-                  style={styles.image}
-                />
+                <Box>
+                  <Image
+                    source={ flags[coin] } //enums no funcionan para require
+                    style={styles.image}
+                    resizeMode="cover"
+                  />
+                </Box>
                 <Box>
                 <RNPickerSelect
-                  onValueChange={(value) => {setSelectedCoin(value); if(value === 'emp') onClear('')}} //hooks hooks y hooks
+                  onValueChange={(value) => {handleCoinChange(value); if(value === 'emp') onClear('')}} //hooks hooks y hooks
                   value={coin}
                   items={[
                     { label: 'CLP', value: 'clp' },
@@ -133,13 +154,15 @@ export default function Selector({ value, onClear }: SelectorProps) {
           <HStack flex={1} justifyContent="space-between" alignItems="center">
             <Box width="50%">
               <HStack flex={1} justifyContent="center" alignItems="center">
-                <Image
+                <Box><Image
                   source={ flags[convertedCoin] }
                   style={styles.image}
+                  resizeMode="contain"
                 />
+                </Box>
                 <Box>
                 <RNPickerSelect
-                  onValueChange={(value) => {setConvertedCoin(value); if(value === 'emp') onClear('')}}
+                  onValueChange={(value) => {handleConvertedCoinChange(value); if(value === 'emp') onClear('')}}
                   value={convertedCoin}
                   items={[
                     { label: 'CLP', value: 'clp' },
@@ -168,8 +191,11 @@ export default function Selector({ value, onClear }: SelectorProps) {
     </Box>
 )}
 
+const imageSize = width * 0.15;
+
 const styles = StyleSheet.create({
-    text: {
+  
+  text: {
     color: '#4B4B4B',
     fontSize: 12
   },
@@ -187,8 +213,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   image: {
-    width: 50,
-    height: 50,
+    width: imageSize,
+    height: imageSize,
     borderRadius: 50,
     marginRight: 5
   }
@@ -208,18 +234,22 @@ const pickerSelectStyles = StyleSheet.create({
   inputAndroid: {
     fontSize: 20,
     paddingHorizontal: 10,
-    paddingVertical: 8,
+    paddingVertical: 1,
+    //paddingVertical: '5%',
     borderWidth: 0.5,
     borderColor: 'white',
     borderRadius: 8,
     color: 'black',
     fontWeight: 'bold',
-    minWidth: 90,
+    //minWidth: 90,
+    minWidth: '40%',
     backgroundColor: 'white',
-    paddingRight: 40,
+    paddingRight: '30%',
   },
   iconContainer: {
-    top: 15,
-    right: 10,
+    //top: 15,
+    top: '40%',
+    //right: 10,
+    right: '20%'
   }
 });

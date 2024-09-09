@@ -7,12 +7,16 @@ type ConversionRates = {
 }
 
 type ConversionState = {
+  coin: string;
+  convertedCoin: string;
   conversionRates: ConversionRates;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null | undefined;  // Error puede ser string o null
 };
 
 const initialState: ConversionState = {
+  coin: 'emp',
+  convertedCoin: 'emp',
   conversionRates: {},
   status: 'idle',
   error: null,  // Inicialmente es null
@@ -34,7 +38,7 @@ export const fetchConversionRates = createAsyncThunk<
     try {
       const response = await axios.get(apiUrl);
       return {
-        clp: response.data.dolar.valor,
+        clp: 1,
         uf: response.data.uf.valor,
         usd: response.data.dolar.valor,
         eur: response.data.euro.valor,
@@ -50,7 +54,14 @@ export const fetchConversionRates = createAsyncThunk<
 const conversionSlice = createSlice({
   name: 'conversion',
   initialState,
-  reducers: {},
+  reducers: {
+    setCoin: (state, action) => {
+      state.coin = action.payload;
+    },
+    setConvertedCoin: (state, action) =>{
+      state.convertedCoin = action.payload;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchConversionRates.pending, (state) => {
@@ -69,6 +80,6 @@ const conversionSlice = createSlice({
   },
 });
 
-//export const { } = conversionSlice.actions;
+export const { setCoin, setConvertedCoin } = conversionSlice.actions;
 
 export default conversionSlice.reducer;
