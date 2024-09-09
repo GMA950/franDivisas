@@ -1,11 +1,12 @@
 import React from "react";
 import { useState, useEffect } from 'react';
-import {View, Text, SafeAreaView, StyleSheet, useColorScheme} from 'react-native';
-import { Center, NativeBaseProvider } from 'native-base';
+import {Text, SafeAreaView, StyleSheet} from 'react-native';
+import { NativeBaseProvider } from 'native-base';
 import { Box } from "native-base";
-import { LogBox } from "react-native";
 import Keyboard from "./components/Keyboard";
 import Selector from "./components/Selector";
+import store from "./store/store";
+import { Provider } from 'react-redux';
 
 if (__DEV__) {
   require("./ReactotronConfig");
@@ -25,27 +26,23 @@ function App(){
   };
   
   
-  //const isDarkMode = useColorScheme() === 'dark';
-  //const dynamicStyle = isDarkMode ? whiteStyles : darkStyles;
-  //console.log('DARKMODE?',isDarkMode);
   return(
     //<SafeAreaView style={styles.container}>
-    <NativeBaseProvider>
-      {/*<View style={styles.container}>*/}
-      <Box
-          w="100%"
-          p="2" bg="blue.800"
-          shadow={2}
-          flex = {1}>
-        <Box alignSelf = "center" marginTop={9}>
-          <Text style={styles.text}>Indicadores Chile xD</Text>
+    <Provider store={store}>
+      <NativeBaseProvider>
+        <Box
+            w="100%"
+            p="2" bg="blue.800"
+            shadow={2}
+            flex = {1}>
+          <Box alignSelf = "center" marginTop={9}>
+            <Text style={styles.text}>Indicadores Chile xD</Text>
+          </Box>
+          <Selector value={inputValue} onClear={handleClear}/>
+          <Keyboard onKeyPress={handleKeyPress} onClear={handleClear}/>
         </Box>
-        {/*<Text>Hola Divisassss</Text>*/}
-        <Selector value={inputValue} onClear={handleClear}/>
-        <Keyboard onKeyPress={handleKeyPress} onClear={handleClear}/>
-      </Box>
-      {/*</View>*/}
-    </NativeBaseProvider>
+      </NativeBaseProvider>
+    </Provider>
     //</SafeAreaView>
   )
 }

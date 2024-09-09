@@ -1,12 +1,13 @@
 import React from 'react'
 import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState, AppDispatch} from '../store/store'; 
+import { fetchConversionRates } from '../store/slices/conversionSlice';
 import { Text, StyleSheet, Image } from 'react-native'
 import RNPickerSelect from 'react-native-picker-select';
 import { Button, Box, HStack, Select, CheckIcon, Divider, Input } from "native-base";
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import '.././fontAwesomeLib';
-import Config from 'react-native-config';
-import axios from 'axios';
 
 type SelectorProps = {
   value: string;
@@ -15,56 +16,28 @@ type SelectorProps = {
 
 export default function Selector({ value, onClear }: SelectorProps) {
 
+  const dispatch: AppDispatch = useDispatch();
+
   const interButtonStyles = {
-    //flex: 1,
-    //aspectRatio: 1,
     height:10,
     width: 10,
     backgroundColor: 'blue.800',
     _text: { color: 'white', fontWeight: 'bold', fontSize: 14},
     borderRadius: "full",
-    //size: "sm"
   };
 
-  //const conversionRate = 0.5; 
-
+  const { conversionRates, status } = useSelector((state: RootState) => state.conversion);
+  //console.log('test', conversionRates);
   const [coin, setSelectedCoin] = React.useState('emp');
   const [convertedCoin, setConvertedCoin] = React.useState('emp');
   const [convertedValue, setConvertedValue] = useState('');
   const [conversionRate, setConversionRate] = useState<number | null>(null);
-  const [conversionRates, setConversionRates] = useState<any>({});
-
-  const apiUrl = Config.API_URL;
-
-  const fetchConversionRate = async () => {
-
-    if (!apiUrl) {
-      console.error('La URL de la API no está definida.'); //wena chatgpt
-      return;
-    }
-
-    try {
-      const response = await axios.get(apiUrl);  // Hacemos una solicitud GET a la API
-      console.log(response.data);
-      //setConversionRate(response.data.rate);  // Asumimos que la tasa viene en "rate"
-      setConversionRates({
-        clp: 1,  // Asumiendo que CLP es el valor del dólar en pesos chilenos
-        uf: response.data.uf.valor,
-        usd: response.data.dolar.valor,
-        eur: response.data.euro.valor,
-        utm: response.data.utm.valor,
-        btc: response.data.bitcoin.valor * response.data.dolar.valor,
-      });
-    } catch (error) {
-      console.error('Error al obtener la tasa de conversión:', error);
-    } finally {
-      //setLoading(false);  // Termina la carga
-    }
-  };
 
   useEffect(() => {
-    fetchConversionRate();
-  }, []);
+    if (status === 'idle') {
+      dispatch(fetchConversionRates());
+    }
+  }, [status, dispatch]);
 
   useEffect(() => {
     if (coin !== 'emp' && convertedCoin !== 'emp' && conversionRates[coin] && conversionRates[convertedCoin]) {
@@ -87,8 +60,6 @@ export default function Selector({ value, onClear }: SelectorProps) {
     setConvertedCoin(tempCoin);          // Cambiar moneda objetivo a moneda base
   };
 
-  //console.log('API URL: ', Config.IMAGE_PATH_CLP);
-  //console.log('Config', Config);
   const flags: Record <string, number> = {
     clp: require('.././src/chile.png'),
     uf: require('.././src/money.png'),
@@ -117,7 +88,6 @@ export default function Selector({ value, onClear }: SelectorProps) {
               <HStack flex={1} justifyContent="center" alignItems="center">
                 <Image
                   source={ flags[coin] } //enums no funcionan para require
-                  //source={require('.././src/chile.png')}  // Importa tu imagen local
                   style={styles.image}
                 />
                 <Box>
@@ -201,7 +171,6 @@ export default function Selector({ value, onClear }: SelectorProps) {
 const styles = StyleSheet.create({
     text: {
     color: '#4B4B4B',
-    //fontWeight: 'bold',
     fontSize: 12
   },
   container: {
@@ -220,7 +189,7 @@ const styles = StyleSheet.create({
   image: {
     width: 50,
     height: 50,
-    borderRadius: 50,  // La mitad del tamaño (width/2 o height/2) para hacerla circular
+    borderRadius: 50,
     marginRight: 5
   }
 })

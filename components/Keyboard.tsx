@@ -37,7 +37,6 @@ const Keyboard: React.FC<KeyboardProps>  = ({ onKeyPress, onClear}) => {
 
   return (
     <Box p={4}>
-      {/*<Text>FlatCards</Text>*/}
       <HStack space={3} justifyContent="center" mt={3}>
         <Button {...normalButtonStyles} onPress={() => onKeyPress('7')}>7</Button>
         <Button {...normalButtonStyles} onPress={() => onKeyPress('8')}>8</Button>
