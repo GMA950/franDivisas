@@ -7,6 +7,7 @@ import Keyboard from "./components/Keyboard";
 import Selector from "./components/Selector";
 import store from "./store/store";
 import { Provider } from 'react-redux';
+import BootSplash from 'react-native-bootsplash'
 
 if (__DEV__) {
   require("./ReactotronConfig");
@@ -16,6 +17,18 @@ if (__DEV__) {
 function App(){
 
   const [inputValue, setInputValue] = useState('');
+
+  useEffect(() => {
+    const init = async () => {
+      // …do multiple sync or async tasks
+    };
+
+    init().finally(async () => {
+      await BootSplash.hide({ fade: true });
+      console.log("BootSplash has been hidden successfully");
+    });
+  }, []);
+  
 
   const handleKeyPress = (value: string) => {
     setInputValue((prev) => prev + value);
